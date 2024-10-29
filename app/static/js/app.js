@@ -4,7 +4,7 @@ var map = L.map('map').setView([23.8103, 90.4125], 12);
     function addTileLayer() {
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '© OpenStreetMap'
+            attribution: '© OpenStreetMap | © Crime Map'
         }).addTo(map);
     }
 
@@ -46,8 +46,6 @@ var map = L.map('map').setView([23.8103, 90.4125], 12);
             const fields = report.fields; // Access fields directly
             const coordinates = [fields.latitude, fields.longitude]; // Create an array with latitude and longitude
             const intensity = fields.intensity; // Get intensity
-    
-            console.log(`Adding marker at: Latitude: ${fields.latitude}, Longitude: ${fields.longitude}`);
     
             // Check for valid coordinates
             if (fields.latitude !== undefined && fields.longitude >= -180 && fields.longitude <= 180) {
