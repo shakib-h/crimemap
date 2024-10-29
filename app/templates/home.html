@@ -17,6 +17,12 @@
     <button id="locate-btn">My Location</button>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        const crimeReportsJson = '{{ crime_reports_json|escapejs }}';
+        console.log(crimeReportsJson);  // Log the raw JSON string
+        const crimeReports = JSON.parse(crimeReportsJson);
+        console.log(crimeReports);  // Log the parsed JSON object
+    </script>
     <script src="{% static 'js/app.js' %}"></script> 
 </body>
 </html>
