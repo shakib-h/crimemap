@@ -22,7 +22,7 @@ html {
 
 .create-report-btn {
     position: absolute;
-    bottom: 100px;
+    bottom: 80px;
     right: 10px;
     background-color: white;
     border: 1px solid #ccc;
