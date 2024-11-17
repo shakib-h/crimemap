@@ -43,11 +43,10 @@ var map = L.map('map').setView([23.8103, 90.4125], 12);
 
     function addCrimeMarkers() {
         crimeReports.forEach(report => {
-            const fields = report.fields; // Access fields directly
-            const coordinates = [fields.latitude, fields.longitude]; // Create an array with latitude and longitude
-            const intensity = fields.intensity; // Get intensity
+            const fields = report.fields;
+            const coordinates = [fields.latitude, fields.longitude];
+            const intensity = fields.intensity;
     
-            // Check for valid coordinates
             if (fields.latitude !== undefined && fields.longitude >= -180 && fields.longitude <= 180) {
                 L.circleMarker(coordinates, {
                     radius: 18,
@@ -64,7 +63,7 @@ var map = L.map('map').setView([23.8103, 90.4125], 12);
 
     function getMarkerColor(intensity) {
         if (intensity === 1) return 'green';
-        if (intensity === 2) return 'yellow';
+        if (intensity === 2) return 'green';
         if (intensity === 3) return 'orange';
         if (intensity === 4) return 'red';
         if (intensity === 5) return 'darkred';
