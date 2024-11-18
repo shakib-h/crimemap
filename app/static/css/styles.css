@@ -46,3 +46,21 @@ html {
         width: 80%;
     }
 }
+
+.modal-header {
+    background-color: #28a745;
+    color: white;
+}
+
+.modal-footer {
+    justify-content: space-between;
+}
+
+#createReportBtn {
+    margin-bottom: 1rem;
+}
+
+button.btn-success {
+    background-color: #28a745;
+    border: none;
+}

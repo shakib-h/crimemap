@@ -76,3 +76,34 @@ var map = L.map('map').setView([23.8103, 90.4125], 12);
     document.getElementById('locate-btn').addEventListener('click', function() {
         getLocation();
     });
+
+    document.getElementById('submitReport').addEventListener('click', function () {
+        const crimeType = document.getElementById('crimeType').value;
+        const location = document.getElementById('location').value;
+        const intensity = parseInt(document.getElementById('intensity').value, 10);
+        const description = document.getElementById('description').value;
+    
+        if (crimeType && location && intensity && intensity >= 1 && intensity <= 5) {
+            // Simulate report submission
+            alert('Report Submitted Successfully!');
+    
+            // Add a new marker to the map (simulate location with random coordinates for demonstration)
+            const simulatedLat = 23.8103 + (Math.random() - 0.5) * 0.02; // Random latitude around Dhaka
+            const simulatedLng = 90.4125 + (Math.random() - 0.5) * 0.02; // Random longitude around Dhaka
+    
+            L.circleMarker([simulatedLat, simulatedLng], {
+                radius: 18,
+                color: getMarkerColor(intensity),
+                fillColor: getMarkerColor(intensity),
+                fillOpacity: 0.2
+            }).addTo(map).bindPopup(`${crimeType} reported at ${location} (Intensity: ${intensity})`);
+    
+            // Close modal and reset form
+            document.getElementById('reportForm').reset();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('reportModal'));
+            modal.hide();
+        } else {
+            alert('Please fill out all required fields correctly.');
+        }
+    });
+    
