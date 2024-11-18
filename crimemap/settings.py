@@ -132,3 +132,4 @@ LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "app/static"]
+# AUTH_USER_MODEL = 'app.appUser'

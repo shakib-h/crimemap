@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,9 +10,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-
-    </style>
 </head>
 
 <body>
@@ -39,13 +37,16 @@
         </nav>
     </div>
 
-
+    <!-- Map container -->
     <div id="map"></div>
+    
+    <!-- Create report button -->
     <button type="button" class="create-report-btn btn btn-sm btn-success rounded-pill" data-bs-toggle="modal"
         data-bs-target="#reportModal">
         Create Report
     </button>
 
+    <!-- Report Modal -->
     <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -54,49 +55,53 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="reportForm">
+                    <form id="reportForm" method="POST">
+                        {% csrf_token %}
                         <div class="mb-3">
                             <label for="crimeType" class="form-label">Crime Type</label>
-                            <select class="form-select" id="crimeType" required>
+                            <select class="form-select" id="crimeType" name="type" required>
                                 <option value="">Select a crime type</option>
-                                <option value="Theft">Theft</option>
-                                <option value="Assault">Assault</option>
-                                <option value="Fraud">Fraud</option>
-                                <option value="Burglary">Burglary</option>
-                                <option value="Other">Other</option>
+                                {% for type, label in crime_type_choices %}
+                                    <option value="{{ type }}">{{ label }}</option>
+                                {% endfor %}
                             </select>
                         </div>
-                        <div class="mb-3">
-                            <label for="area" class="form-label">Area</label>
-                            <select class="form-select" id="crimeType" required>
-                                <option value="">Select an area</option>
-                                <option value="dhaka">Dhaka</option>
-                                <option value="chittagong">Chittagong</option>
-                                <option value="sylhet">Sylhet</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="address" class="form-label">Addres</label>
-                            <input type="text" class="form-control" id="location" placeholder="Enter location" required>
-                        </div>
-                        <!-- <div class="mb-3">
-                                <label for="intensity" class="form-label">Crime Intensity (1-5)</label>
-                                <input type="number" class="form-control" id="intensity" min="1" max="5" required>
-                            </div> -->
+                    
                         <div class="mb-3">
                             <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" rows="3"
-                                placeholder="Provide a brief description"></textarea>
+                            <textarea class="form-control" id="description" name="description" rows="3" placeholder="Provide a brief description" required></textarea>
                         </div>
-                        <button type="button" class="btn btn-success" id="submitReport">Submit Report</button>
+                    
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location</label>
+                            <select class="form-select" id="location" name="location" required>
+                                <option value="">Select a location</option>
+                                {% for location in locations %}
+                                    <option value="{{ location.location_id }}">{{ location.city }}, {{ location.division }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="address" name="address" placeholder="Enter address" required autocomplete="off">
+                        </div>
+                        <div id="address-suggestions"></div> <!-- Container for address suggestions -->  
+                    
+                        <input type="hidden" id="latitude" name="latitude">
+                        <input type="hidden" id="longitude" name="longitude">
+                    
+                        <button type="submit" class="btn btn-success">Submit Report</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- My Location Button -->
     <button id="locate-btn" class="locate-btn btn btn-sm btn-success rounded-pill">My Location</button>
 
+    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         const crimeReportsJson = '{{ crime_reports_json|escapejs }}';
