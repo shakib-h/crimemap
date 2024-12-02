@@ -55,7 +55,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="reportForm" method="POST">
+                    <form id="reportForm" data-submit-url="{% url 'submit_report' %}" method="POST">
                         {% csrf_token %}
                         <div class="mb-3">
                             <label for="crimeType" class="form-label">Crime Type</label>

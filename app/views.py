@@ -1,5 +1,4 @@
-from datetime import timezone
-import json
+from datetime import datetime
 from django.core.serializers import serialize
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -73,13 +72,13 @@ def submit_report(request):
         user_id = request.user.id  # Assuming the user is logged in
 
         # Get the location object
-        location = Location.objects.get(id=location_id)
+        location = Location.objects.get(location_id=location_id)
 
         # Create a new Crime report
         crime = Crime.objects.create(
             type=crime_type,
             description=description,
-            date_time=timezone.now(),
+            date_time=datetime.now(),
             address=address,
             latitude=latitude,
             longitude=longitude,

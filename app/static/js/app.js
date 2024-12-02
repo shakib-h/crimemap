@@ -158,15 +158,14 @@ addressInput.addEventListener('input', function () {
     }
 });
 
+const submitUrl = reportForm.getAttribute('data-submit-url');
 
 reportForm.addEventListener("submit", function (e) {
     e.preventDefault();
 
-
     const formData = new FormData(reportForm);
 
-
-    fetch("{% url 'submit_report' %}", {
+    fetch(submitUrl, {
         method: "POST",
         body: formData,
     })
@@ -174,7 +173,6 @@ reportForm.addEventListener("submit", function (e) {
         .then(data => {
             if (data.success) {
                 alert('Report submitted successfully');
-
                 reportForm.reset();
             } else {
                 alert('Error submitting report');
