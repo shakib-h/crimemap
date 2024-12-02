@@ -183,3 +183,56 @@ reportForm.addEventListener("submit", function (e) {
             alert('There was an issue submitting the form');
         });
 });
+
+
+const locationSearch = document.getElementById('locationSearch');
+const locationSuggestions = document.getElementById('locationSuggestions');
+
+function getLocationSuggestions(query) {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => displayLocationSuggestions(data))
+        .catch(error => console.log('Error fetching location suggestions:', error));
+}
+
+function displayLocationSuggestions(suggestions) {
+    locationSuggestions.innerHTML = '';
+
+    if (suggestions.length > 0) {
+        suggestions.forEach(suggestion => {
+            const suggestionElement = document.createElement('div');
+            suggestionElement.classList.add('suggestion-item');
+            suggestionElement.textContent = suggestion.display_name;
+            suggestionElement.addEventListener('click', function () {
+                selectLocationSuggestion(suggestion);
+            });
+            locationSuggestions.appendChild(suggestionElement);
+        });
+    } else {
+        locationSuggestions.innerHTML = '<p>No suggestions found</p>';
+    }
+}
+
+function selectLocationSuggestion(suggestion) {
+    locationSearch.value = suggestion.display_name;
+    locationSuggestions.innerHTML = '';
+    setMapView(suggestion.lat, suggestion.lon, 13, true);
+}
+
+locationSearch.addEventListener('input', function () {
+    const query = locationSearch.value;
+    if (query.length > 2) {
+        getLocationSuggestions(query);
+    } else {
+        locationSuggestions.innerHTML = '';
+    }
+});
+
+// Hide suggestions when the user clicks outside
+document.addEventListener('click', function (e) {
+    if (!locationSearch.contains(e.target) && !locationSuggestions.contains(e.target)) {
+        locationSuggestions.innerHTML = '';
+    }
+});

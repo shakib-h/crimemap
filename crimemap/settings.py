@@ -75,16 +75,33 @@ WSGI_APPLICATION = 'crimemap.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-	'default': {
-		'ENGINE': 'django.db.backends.mysql',
-		'NAME': 'crimemap',
-		'USER': 'root',
-		'PASSWORD': '',
-		'HOST':'localhost',
-		'PORT':'3306',
-	}
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'crimemap',  # Default database (if needed)
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    },
+    'dhaka': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'crimemap_dhaka',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    },
+    'chittagong': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'crimemap_chittagong',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    },
 }
 
+DATABASE_ROUTERS = ['app.db_router.DivisionRouter']
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

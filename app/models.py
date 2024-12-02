@@ -21,7 +21,7 @@ class appUser(AbstractUser):
 class Location(models.Model):
     location_id = models.AutoField(primary_key=True)
     city = models.CharField(max_length=100)
-    division = models.CharField(max_length=100)
+    division = models.CharField(max_length=100, db_index=True)
 
     def __str__(self):
         return f"{self.city}, {self.division}"
@@ -62,7 +62,7 @@ class Crime(models.Model):
         decimal_places=6, 
         default=0.000000
     )
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, db_constraint=False)
     status = models.CharField(max_length=10, choices=[
         ('Pending', 'Pending'),
         ('Verified', 'Verified'),
