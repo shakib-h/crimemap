@@ -1,6 +1,6 @@
 {% load static %}
 
-<!DOCTYPE html>
+
 <html lang="en">
 
 <head>
@@ -36,16 +36,16 @@
     </div>
     
 
-    <!-- Map container -->
+    
     <div id="map"></div>
     
-    <!-- Create report button -->
+    
     <button type="button" class="create-report-btn btn btn-sm btn-success rounded-pill" data-bs-toggle="modal"
         data-bs-target="#reportModal">
         Create Report
     </button>
 
-    <!-- Report Modal -->
+    
     <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -85,7 +85,7 @@
                             <label for="address" class="form-label">Address</label>
                             <input type="text" class="form-control" id="address" name="address" placeholder="Enter address" required autocomplete="off">
                         </div>
-                        <div id="address-suggestions"></div> <!-- Container for address suggestions -->  
+                        <div id="address-suggestions"></div> 
                     
                         <input type="hidden" id="latitude" name="latitude">
                         <input type="hidden" id="longitude" name="longitude">
@@ -97,10 +97,10 @@
         </div>
     </div>
 
-    <!-- My Location Button -->
+    
     <button id="locate-btn" class="locate-btn btn btn-sm btn-success rounded-pill">My Location</button>
 
-    <!-- Scripts -->
+    
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         const crimeReportsJson = '{{ crime_reports_json|escapejs }}';
