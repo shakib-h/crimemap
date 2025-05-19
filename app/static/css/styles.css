@@ -41,6 +41,24 @@ html {
     width: 40%;
 }
 
+.filter-container {
+    z-index: 1000;
+    width: 250px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+@media (max-width: 768px) {
+    .filter-container {
+        top: auto;
+        right: auto;
+        bottom: 20px;
+        left: 20px;
+    }
+}
+
+
 @media (max-width: 768px) {
     .navbar {
         width: 80%;

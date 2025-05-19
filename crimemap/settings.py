@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'crimemap.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'crimemap',  # Default database (if needed)
+        'NAME': 'crimemap',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',

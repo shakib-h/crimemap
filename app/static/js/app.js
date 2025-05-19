@@ -230,9 +230,108 @@ locationSearch.addEventListener('input', function () {
     }
 });
 
-// Hide suggestions when the user clicks outside
+
 document.addEventListener('click', function (e) {
     if (!locationSearch.contains(e.target) && !locationSuggestions.contains(e.target)) {
         locationSuggestions.innerHTML = '';
     }
 });
+
+
+const crimeTypeFilter = document.getElementById('crimeTypeFilter');
+const dateFilter = document.getElementById('dateFilter');
+const applyFilters = document.getElementById('applyFilters');
+const resetFilterButton = document.getElementById('resetFilter');
+
+
+function resetFilters() {
+    
+    crimeTypeFilter.value = "";
+    dateFilter.value = "";
+
+    
+    map.eachLayer((layer) => {
+        if (layer instanceof L.CircleMarker) {
+            map.removeLayer(layer);
+        }
+    });
+
+    
+    crimeReports.forEach((report) => {
+        const fields = report.fields;
+        const coordinates = [fields.latitude, fields.longitude];
+        if (
+            fields.latitude !== undefined &&
+            fields.longitude >= -180 &&
+            fields.longitude <= 180
+        ) {
+            L.circleMarker(coordinates, {
+                radius: 18,
+                color: getMarkerColor(fields.type),
+                fillColor: getMarkerColor(fields.type),
+                fillOpacity: 0.4,
+            })
+                .addTo(map)
+                .bindPopup(
+                    `<b>Crime Type:</b> ${fields.type}<br>
+                     <b>Address:</b> ${fields.address}<br>
+                     <b>Description:</b> ${fields.description}<br>
+                     <b>Date & Time:</b> ${new Date(fields.date_time).toLocaleString()}<br>
+                     <b>Status:</b> ${fields.status}`
+                );
+        }
+    });
+}
+
+
+resetFilterButton.addEventListener('click', resetFilters);
+
+
+function filterCrimeMarkers() {
+    
+    const selectedCrimeType = crimeTypeFilter.value;
+    const selectedDate = dateFilter.value;
+
+    
+    map.eachLayer((layer) => {
+        if (layer instanceof L.CircleMarker) {
+            map.removeLayer(layer);
+        }
+    });
+
+    
+    crimeReports.forEach((report) => {
+        const fields = report.fields;
+        const crimeDate = new Date(fields.date_time).toISOString().split('T')[0];
+
+        const matchesType = selectedCrimeType ? fields.type === selectedCrimeType : true;
+        const matchesDate = selectedDate ? crimeDate === selectedDate : true;
+
+        if (matchesType && matchesDate) {
+            const coordinates = [fields.latitude, fields.longitude];
+            if (
+                fields.latitude !== undefined &&
+                fields.longitude >= -180 &&
+                fields.longitude <= 180
+            ) {
+                L.circleMarker(coordinates, {
+                    radius: 18,
+                    color: getMarkerColor(fields.type),
+                    fillColor: getMarkerColor(fields.type),
+                    fillOpacity: 0.4,
+                })
+                    .addTo(map)
+                    .bindPopup(
+                        `<b>Crime Type:</b> ${fields.type}<br>
+                         <b>Address:</b> ${fields.address}<br>
+                         <b>Description:</b> ${fields.description}<br>
+                         <b>Date & Time:</b> ${new Date(fields.date_time).toLocaleString()}<br>
+                         <b>Status:</b> ${fields.status}`
+                    );
+            }
+        }
+    });
+}
+
+
+applyFilters.addEventListener('click', filterCrimeMarkers);
