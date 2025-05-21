@@ -50,5 +50,6 @@
         </div>
 
         <x-dark-mode-toggle />
+        @stack('scripts')
     </body>
 </html>
