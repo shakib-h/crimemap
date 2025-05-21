@@ -2,6 +2,14 @@
     {{-- Map Container --}}
     <div id="map" class="fixed inset-0 w-screen h-screen z-0"></div>
 
+    {{-- Location Button --}}
+    <button id="locate-btn" class="fixed bottom-4 right-20 z-40 p-3 bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-200 rounded-full shadow-lg hover:bg-white dark:hover:bg-gray-700 backdrop-blur-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+    </button>
+
     {{-- Bottom Sheet for authenticated users --}}
     @auth
         <div class="crime-report-sheet fixed bottom-0 left-0 w-full md:w-96 bg-white/95 dark:bg-gray-800/95 shadow-lg rounded-t-xl transform transition-transform duration-300 translate-y-[90%] hover:translate-y-0 focus-within:translate-y-0 z-40 backdrop-blur-sm">
@@ -48,7 +56,7 @@
 
                 // Add zoom control to bottom right
                 L.control.zoom({
-                    position: 'bottomright'
+                    position: 'topleft',
                 }).addTo(map);
 
                 // Add crime markers only if they exist
@@ -95,6 +103,40 @@
                     }
                 });
                 @endauth
+
+                // Location tracking variables
+                let userMarker, userCircle;
+
+                // Setup location button
+                const locateBtn = document.getElementById('locate-btn');
+                locateBtn?.addEventListener('click', () => {
+                    map.locate({ setView: true, maxZoom: 16 });
+                });
+
+                // Handle location found
+                map.on('locationfound', function(e) {
+                    const radius = e.accuracy;
+
+                    if (userMarker) {
+                        userMarker.setLatLng(e.latlng);
+                        userCircle.setLatLng(e.latlng).setRadius(radius);
+                    } else {
+                        userMarker = L.marker(e.latlng).addTo(map);
+                        userCircle = L.circle(e.latlng, {
+                            radius: radius,
+                            color: '#3b82f6',
+                            fillColor: '#3b82f6',
+                            fillOpacity: 0.15
+                        }).addTo(map);
+                    }
+
+                    userMarker.bindPopup("You are within " + radius + " meters from this point").openPopup();
+                });
+
+                // Handle location error
+                map.on('locationerror', function(e) {
+                    alert("Could not find your location: " + e.message);
+                });
             });
         </script>
     @endpush
