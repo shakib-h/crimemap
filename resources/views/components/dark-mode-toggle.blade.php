@@ -1,7 +1,7 @@
 <button x-on:click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode); 
                     document.documentElement.classList.toggle('dark')"
         class="fixed bottom-4 right-4 w-12 h-12 flex items-center justify-center rounded-full shadow-md transition-all duration-500 transform"
-        x-bind:class="darkMode ? 'bg-gray-200 text-black' : 'bg-gray-800 text-white'">
+        x-bind:class="darkMode ? 'bg-gray-800/90 text-white' : 'bg-white/90 text-black'">
 
     <span x-show="!darkMode" x-transition:enter="transition duration-500 ease-in-out transform"
           x-transition:enter-start="opacity-0 scale-75"
