@@ -45,4 +45,38 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            if (!$user->role_id) {
+                $defaultRole = Role::where('slug', 'user')->first();
+                if ($defaultRole) {
+                    $user->role_id = $defaultRole->id;
+                }
+            }
+        });
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function crimes()
+    {
+        return $this->hasMany(Crime::class);
+    }
+
+    public function isAdmin()
+    {
+        return $this->role->slug === 'admin';
+    }
+
+    public function isModerator()
+    {
+        return $this->role->slug === 'moderator';
+    }
 }
