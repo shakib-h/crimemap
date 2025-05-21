@@ -47,11 +47,45 @@ function setupLocationTracking(map) {
         return;
     }
 
-    const locateBtn = document.getElementById('locate-btn');
-    locateBtn?.addEventListener('click', () => {
-        map.locate({ setView: true, maxZoom: 16 });
+    function updateLocation(position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const accuracy = position.coords.accuracy;
+
+        const latlng = { lat, lng };
+
+        if (userMarker) {
+            userMarker.setLatLng(latlng);
+        } else {
+            userMarker = L.marker(latlng).addTo(map);
+        }
+
+        userMarker.bindPopup(`You are within ${Math.round(accuracy)} meters from this point`).openPopup();
+        map.setView(latlng, 16);
+    }
+
+    function handleLocationError(error) {
+        alert("Could not find your location: " + error.message);
+    }
+
+    // Get location on page load
+    navigator.geolocation.getCurrentPosition(updateLocation, handleLocationError, {
+        enableHighAccuracy: true,
+        maximumAge: 30000,
+        timeout: 27000
     });
 
+    // Setup locate button
+    const locateBtn = document.getElementById('locate-btn');
+    locateBtn?.addEventListener('click', () => {
+        navigator.geolocation.getCurrentPosition(updateLocation, handleLocationError, {
+            enableHighAccuracy: true,
+            maximumAge: 0,
+            timeout: 5000
+        });
+    });
+
+    // Keep existing map event handlers for compatibility
     map.on('locationfound', (e) => {
         const radius = e.accuracy;
 
@@ -95,10 +129,42 @@ export function initializeMap() {
         attributionControl: true
     }).setView(window.mapConfig.center, window.mapConfig.zoom);
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Define tile layers for light and dark modes
+    const lightTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
+    });
+
+    const darkTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        className: 'map-tiles-dark', // Apply dark mode styling
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    });
+
+    // Add initial tile layer based on dark mode state
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    (isDarkMode ? darkTiles : lightTiles).addTo(map);
+
+    // Watch for dark mode changes
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class') {
+                const isDark = document.documentElement.classList.contains('dark');
+                if (isDark) {
+                    map.removeLayer(lightTiles);
+                    darkTiles.addTo(map);
+                } else {
+                    map.removeLayer(darkTiles);
+                    lightTiles.addTo(map);
+                }
+            }
+        });
+    });
+
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
 
     L.control.zoom({
         position: 'topleft'

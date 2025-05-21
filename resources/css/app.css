@@ -1,3 +1,36 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.dark .leaflet-layer,
+.dark .leaflet-control-zoom-in,
+.dark .leaflet-control-zoom-out,
+.dark .leaflet-control-attribution {
+  filter: invert(95%) hue-rotate(180deg) brightness(100%) contrast(80%);
+}
+.dark .leaflet-container {
+    background: rgb(31 41 55 / 0.95);
+}
+
+.dark .leaflet-popup-content-wrapper {
+    background-color: rgb(31 41 55 / 0.95);
+    color: rgb(243 244 246);
+}
+
+.dark .leaflet-popup-tip {
+    background-color: rgb(31 41 55 / 0.95);
+}
+
+.dark .leaflet-control-zoom a {
+    background-color: rgb(31 41 55 / 0.95);
+    color: rgb(243 244 246);
+    border-color: rgb(75 85 99);
+}
+
+.dark .leaflet-control-zoom a:hover {
+    background-color: rgb(55 65 81);
+}
+
+.leaflet-top {
+    top: 65px !important;
+}
