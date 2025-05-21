@@ -17,5 +17,17 @@ window.Alpine = Alpine;
 
 Alpine.start();
 
-// Initialize map when DOM is ready
-document.addEventListener('DOMContentLoaded', initializeMap);
+// Wait for DOM and ensure map config is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.mapConfig) {
+        console.error('Map configuration not found');
+        return;
+    }
+
+    try {
+        initializeMap();
+        console.log('Main map initialized');
+    } catch (error) {
+        console.error('Error initializing map:', error);
+    }
+});

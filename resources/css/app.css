@@ -34,3 +34,7 @@
 .leaflet-top {
     top: 65px !important;
 }
+
+[x-cloak] {
+    display: none !important;
+}

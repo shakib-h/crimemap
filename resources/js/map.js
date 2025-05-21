@@ -41,7 +41,7 @@ function addCrimeCircles(map, crimes) {
 }
 
 function setupLocationTracking(map) {
-    let userMarker;
+    let userCircle;
     if (!navigator.geolocation) {
         alert("Geolocation is not supported by this browser.");
         return;
@@ -54,13 +54,21 @@ function setupLocationTracking(map) {
 
         const latlng = { lat, lng };
 
-        if (userMarker) {
-            userMarker.setLatLng(latlng);
+        if (userCircle) {
+            userCircle.setLatLng(latlng);
         } else {
-            userMarker = L.marker(latlng).addTo(map);
+            userCircle = L.circle(latlng,
+                {
+                    radius: 50,
+                    color: '#3388ff',
+                    fillColor: '#3388ff',
+                    fillOpacity: 0.7,
+                    weight: 1
+                }
+            ).addTo(map);
         }
 
-        userMarker.bindPopup(`You are within ${Math.round(accuracy)} meters from this point`).openPopup();
+        userCircle.bindPopup(`You are within ${Math.round(accuracy)} meters from this point`).openPopup();
         map.setView(latlng, 16);
     }
 
@@ -89,13 +97,13 @@ function setupLocationTracking(map) {
     map.on('locationfound', (e) => {
         const radius = e.accuracy;
 
-        if (userMarker) {
-            userMarker.setLatLng(e.latlng);
+        if (userCircle) {
+            userCircle.setLatLng(e.latlng);
         } else {
-            userMarker = L.marker(e.latlng).addTo(map);
+            userCircle = L.marker(e.latlng).addTo(map);
         }
 
-        userMarker.bindPopup(`You are within ${Math.round(radius)} meters from this point`).openPopup();
+        userCircle.bindPopup(`You are within ${Math.round(radius)} meters from this point`).openPopup();
     });
 
     map.on('locationerror', (e) => {
@@ -103,84 +111,127 @@ function setupLocationTracking(map) {
     });
 }
 
-function setupReportMarker(map) {
-    if (!document.getElementById('latitude')) return;
+function initializeMiniMap() {
+    let miniMap = null;
+    let marker = null;
 
-    let reportMarker;
-    map.on('click', (e) => {
-        const { lat, lng } = e.latlng;
+    // Listen for modal open event
+    document.addEventListener('open-modal', function(e) {
+        if (e.detail !== 'crime-report') return;
         
-        document.getElementById('latitude').value = lat;
-        document.getElementById('longitude').value = lng;
-        document.getElementById('location-text').textContent = 
-            `Location set: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        console.log('Modal opened, initializing mini map');
 
-        if (reportMarker) {
-            reportMarker.setLatLng(e.latlng);
-        } else {
-            reportMarker = L.marker(e.latlng).addTo(map);
+        setTimeout(() => {
+            const container = document.getElementById('mini-map');
+            if (!container) {
+                console.error('Mini map container not found');
+                return;
+            }
+
+            try {
+                miniMap = L.map('mini-map', {
+                    zoomControl: false,
+                    attributionControl: false
+                });
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19
+                }).addTo(miniMap);
+
+                L.control.zoom({
+                    position: 'bottomright'
+                }).addTo(miniMap);
+
+                // Get user's location first
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude: lat, longitude: lng } = position.coords;
+                        miniMap.setView([lat, lng], 18);
+                        
+                        // Add marker at user's location
+                        marker = L.marker([lat, lng]).addTo(miniMap);
+                        
+                        // Set initial form values
+                        document.getElementById('latitude').value = lat.toFixed(6);
+                        document.getElementById('longitude').value = lng.toFixed(6);
+
+                        // Force map to recalculate its container size
+                        miniMap.invalidateSize();
+                    },
+                    (error) => {
+                        console.error('Location error:', error);
+                        // Fallback to default location
+                        miniMap.setView(window.mapConfig?.center || [23.8103, 90.4125], 13);
+                        miniMap.invalidateSize();
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    }
+                );
+
+                // Add click handler for location selection
+                miniMap.on('click', function(e) {
+                    const { lat, lng } = e.latlng;
+
+                    if (marker) {
+                        marker.setLatLng(e.latlng);
+                    } else {
+                        marker = L.marker(e.latlng).addTo(miniMap);
+                    }
+
+                    document.getElementById('latitude').value = lat.toFixed(6);
+                    document.getElementById('longitude').value = lng.toFixed(6);
+                });
+
+                console.log('Mini map initialized successfully');
+            } catch (error) {
+                console.error('Error initializing mini map:', error);
+            }
+        }, 500);
+    });
+
+    // Clean up on modal close
+    document.addEventListener('close-modal', function(e) {
+        if (e.detail !== 'crime-report') return;
+        
+        if (miniMap) {
+            miniMap.remove();
+            miniMap = null;
+            marker = null;
+            console.log('Mini map cleaned up');
         }
     });
 }
 
 export function initializeMap() {
+    // Use default config if window.mapConfig is not available
+    const config = window.mapConfig || {
+        center: [23.8103, 90.4125],
+        zoom: 13,
+        crimes: []
+    };
+
+    // Initialize main map
     const map = L.map('map', {
         zoomControl: false,
         attributionControl: true
-    }).setView(window.mapConfig.center, window.mapConfig.zoom);
+    }).setView(config.center, config.zoom);
 
-    // Define tile layers for light and dark modes
-    const lightTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Add tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    });
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-    const darkTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        className: 'map-tiles-dark', // Apply dark mode styling
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    });
-
-    // Add initial tile layer based on dark mode state
-    const isDarkMode = document.documentElement.classList.contains('dark');
-    (isDarkMode ? darkTiles : lightTiles).addTo(map);
-
-    // Watch for dark mode changes
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.attributeName === 'class') {
-                const isDark = document.documentElement.classList.contains('dark');
-                if (isDark) {
-                    map.removeLayer(lightTiles);
-                    darkTiles.addTo(map);
-                } else {
-                    map.removeLayer(darkTiles);
-                    lightTiles.addTo(map);
-                }
-            }
-        });
-    });
-
-    observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['class']
-    });
-
+    // Add zoom control
     L.control.zoom({
         position: 'topleft'
     }).addTo(map);
 
     // Initialize features
-    addCrimeCircles(map, window.mapConfig.crimes);
+    addCrimeCircles(map, config.crimes);
     setupLocationTracking(map);
-    setupReportMarker(map);
-
-    // Adjust for navbar
-    const nav = document.querySelector('nav');
-    if (nav) {
-        const navHeight = nav.offsetHeight;
-        map.setView(map.getCenter(), map.getZoom(), {
-            paddingTopLeft: [0, navHeight]
-        });
-    }
+    initializeMiniMap();
 }
