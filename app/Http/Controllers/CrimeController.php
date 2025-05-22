@@ -28,4 +28,19 @@ class CrimeController extends Controller
         return redirect()->route('map')
             ->with('success', 'Crime report submitted successfully and pending review.');
     }
+
+    public function moderate(Request $request, Crime $crime)
+    {
+        $validated = $request->validate([
+            'status' => ['required', 'in:pending,approved,rejected'],
+        ]);
+
+        $crime->update([
+            'status' => $validated['status'],
+            'moderated_at' => now(),
+            'moderated_by' => Auth::id(),
+        ]);
+
+        return back()->with('success', 'Crime report status updated successfully.');
+    }
 }

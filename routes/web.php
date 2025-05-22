@@ -14,6 +14,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/crimes', [CrimeController::class, 'store'])->name('crimes.store');
+    Route::patch('/crimes/{crime}/moderate', [CrimeController::class, 'moderate'])
+        ->name('crimes.moderate')
+        ->middleware('can:moderate,crime');
 });
 
 require __DIR__.'/auth.php';

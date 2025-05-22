@@ -20,11 +20,26 @@
                         </h3>
                         
                         <div class="flex gap-4">
-                            <select id="type-filter" class="rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                            <select 
+                                id="type-filter" 
+                                class="rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                                onchange="filterCrimes()"
+                            >
                                 <option value="">All Types</option>
                                 @foreach($crimeTypes as $type)
                                     <option value="{{ $type->id }}">{{ $type->name }}</option>
                                 @endforeach
+                            </select>
+
+                            <select 
+                                id="status-filter" 
+                                class="rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                                onchange="filterCrimes()"
+                            >
+                                <option value="">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
                             </select>
                         </div>
                     </div>
@@ -64,9 +79,44 @@
                                             {{ $crime->created_at->format('M d, Y') }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <a href="#" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
-                                                View
-                                            </a>
+                                            <div class="flex items-center space-x-3">
+                                                <a href="#" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                                    View
+                                                </a>
+                                                
+                                                @if(Auth::user()->isAdmin() || Auth::user()->isModerator())
+                                                    @if($crime->status === 'pending')
+                                                        <form action="{{ route('crimes.moderate', $crime) }}" method="POST" class="inline">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <input type="hidden" name="status" value="approved">
+                                                            <button type="submit" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
+                                                                Approve
+                                                            </button>
+                                                        </form>
+
+                                                        <form action="{{ route('crimes.moderate', $crime) }}" method="POST" class="inline">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <input type="hidden" name="status" value="rejected">
+                                                            <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                                                                Reject
+                                                            </button>
+                                                        </form>
+                                                    @endif
+
+                                                    @if($crime->status !== 'pending')
+                                                        <form action="{{ route('crimes.moderate', $crime) }}" method="POST" class="inline">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <input type="hidden" name="status" value="pending">
+                                                            <button type="submit" class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300">
+                                                                Reset to Pending
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty

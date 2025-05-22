@@ -1,6 +1,7 @@
 import './bootstrap';
 import 'leaflet/dist/leaflet.css';
 import { initializeMap } from './map';
+import { initializeDashboard } from './dashboard';
 
 import Alpine from 'alpinejs';
 
@@ -17,17 +18,19 @@ window.Alpine = Alpine;
 
 Alpine.start();
 
-// Wait for DOM and ensure map config is loaded
+// Initialize features based on current page
 document.addEventListener('DOMContentLoaded', () => {
-    if (!window.mapConfig) {
-        console.error('Map configuration not found');
-        return;
+    // Initialize map if on map page
+    if (document.getElementById('map')) {
+        if (!window.mapConfig) {
+            console.error('Map configuration not found');
+            return;
+        }
+        initializeMap();
     }
 
-    try {
-        initializeMap();
-        console.log('Main map initialized');
-    } catch (error) {
-        console.error('Error initializing map:', error);
+    // Initialize dashboard if on dashboard page
+    if (document.getElementById('type-filter')) {
+        initializeDashboard();
     }
 });
